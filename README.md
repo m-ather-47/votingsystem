@@ -1,36 +1,90 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Online Voting System
+
+A secure and comprehensive online voting application built with Next.js, Supabase, and Tailwind CSS. This system facilitates the management of elections, voters, candidates, and secure ballot casting.
+
+## Features
+
+### 🔐 Admin Panel
+- **Dashboard:** Overview of election statistics.
+- **Election Management:** Create and manage elections (Active, Inactive, Archived).
+- **Voter Management:** Register and manage voters with biometric details (CNIC, DOB, Photo).
+- **Candidate Management:** Register candidates and assign them to specific elections and positions.
+- **Position Management:** Define positions for each election.
+
+### 🗳️ Voter Portal
+- **Secure Info:** Voter authentication using CNIC.
+- **Vote Casting:** Simple interface to cast votes for active elections.
+- **Profile:** View voter details and voting status.
+- **One Person, One Vote:** Robust constraints to prevent duplicate voting for the same position.
+
+## Tech Stack
+
+- **Framework:** [Next.js 15](https://nextjs.org/) (App Router)
+- **Database:** [Supabase](https://supabase.com/) (PostgreSQL)
+- **Styling:** [Tailwind CSS](https://tailwindcss.com/) & [DaisyUI](https://daisyui.com/)
+- **State Management:** [Zustand](https://github.com/pmndrs/zustand)
+- **Authentication:** Custom Auth (JWT & Bcrypt)
+- **Notifications:** React Hot Toast
+
+## Database Schema
+
+The database is structured with the following key tables:
+- `admins`: System administrators.
+- `elections`: Election events with status tracking.
+- `positions`: Roles available in an election (e.g., President, Secretary).
+- `candidates`: Individuals running for positions.
+- `voters`: Registered voters with CNIC and status.
+- `votes`: Records of cast ballots.
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+- Node.js installed
+- A Supabase project set up
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+### Installation
+
+1. **Clone the repository:**
+   ```bash
+   git clone <repository-url>
+   cd votingsystem
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+3. **Environment Setup:**
+   Create a `.env.local` file in the root directory and add your Supabase credentials and JWT secret:
+   ```env
+   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+   JWT_SECRET=your_jwt_secret_key
+   ```
+
+4. **Database Setup:**
+   Run the SQL script located in `database/schema.sql` in your Supabase SQL Editor to create the necessary tables and extensions.
+
+5. **Run the Development Server:**
+   ```bash
+   npm run dev
+   ```
+
+   Open [http://localhost:3000](http://localhost:3000) to view the application.
+
+## Folder Structure
+
 ```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+src/
+├── app/                # App Router pages and layouts
+│   ├── (admin)/        # Admin protected routes
+│   ├── (voter)/        # Voter protected routes
+│   ├── api/            # Backend API routes
+│   └── (root)/         # Public landing pages
+├── components/         # Reusable UI components
+├── lib/                # Utility libraries
+├── store/              # Zustand state stores
+├── utils/              # Helper functions & Supabase client
+└── ...
+```
