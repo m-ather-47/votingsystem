@@ -17,7 +17,7 @@ const ManageElections = () => {
   const [newCandidate, setNewCandidate] = useState({
     name: "",
     party: "",
-    photo: "/profile.jpg",
+    photo: "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp",
   });
 
   const [editingElectionId, setEditingElectionId] = useState(null);
@@ -226,7 +226,7 @@ const ManageElections = () => {
         return;
       }
       toast.success(result.message || "Candidate created.");
-      setNewCandidate({ name: "", party: "", photo: "/profile.jpg" });
+      setNewCandidate({ name: "", party: "", photo: "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp" });
       await fetchElections();
     } catch (error) {
       toast.error("Failed to create candidate.");
@@ -279,411 +279,349 @@ const ManageElections = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="bg-white rounded-xl shadow-md p-6">
-        <h2 className="text-lg font-bold mb-4">Create Election</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <input
-            type="text"
-            placeholder="Election Name"
-            value={newElection.name}
-            onChange={(e) =>
-              setNewElection({ ...newElection, name: e.target.value })
-            }
-            className="border rounded-lg px-3 py-2"
-          />
-          <select
-            value={newElection.status}
-            onChange={(e) =>
-              setNewElection({ ...newElection, status: e.target.value })
-            }
-            className="border rounded-lg px-3 py-2"
-          >
-            <option value="Active">Active</option>
-            <option value="Inactive">Inactive</option>
-            <option value="Archived">Archived</option>
-          </select>
-          <button
-            onClick={handleCreateElection}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg shadow"
-          >
-            Save Election
-          </button>
-        </div>
-      </div>
-
-      <div className="bg-white rounded-xl shadow-md p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold">Elections</h2>
-          {isLoading ? <span className="text-sm text-gray-500">Loading...</span> : null}
-        </div>
-        {elections.length === 0 ? (
-          <p className="text-gray-500">No elections found.</p>
-        ) : (
-          <div className="space-y-3">
-            {elections.map((election) => (
-              <div
-                key={election.id}
-                className="border rounded-lg p-4 flex flex-col md:flex-row md:items-center md:justify-between"
-              >
-                <div>
-                  {editingElectionId === election.id ? (
-                    <div className="space-y-2">
-                      <input
+    <div className="space-y-8">
+      {/* 1. Create Election */}
+      <div className="card bg-base-100 shadow-xl">
+        <div className="card-body">
+            <h2 className="card-title">Create New Election</h2>
+            <div className="flex flex-col md:flex-row gap-4 items-end">
+                 <div className="form-control w-full">
+                    <label className="label">
+                        <span className="label-text">Election Name</span>
+                    </label>
+                    <input
                         type="text"
-                        value={editingElection.name}
-                        onChange={(e) =>
-                          setEditingElection({
-                            ...editingElection,
-                            name: e.target.value,
-                          })
-                        }
-                        className="border rounded px-2 py-1 w-full"
-                      />
-                      <select
-                        value={editingElection.status}
-                        onChange={(e) =>
-                          setEditingElection({
-                            ...editingElection,
-                            status: e.target.value,
-                          })
-                        }
-                        className="border rounded px-2 py-1"
-                      >
+                        placeholder="E.g., General Election 2024"
+                        value={newElection.name}
+                        onChange={(e) => setNewElection({ ...newElection, name: e.target.value })}
+                        className="input input-bordered w-full"
+                    />
+                </div>
+                 <div className="form-control w-full md:w-1/4">
+                     <label className="label">
+                        <span className="label-text">Status</span>
+                    </label>
+                    <select
+                        value={newElection.status}
+                        onChange={(e) => setNewElection({ ...newElection, status: e.target.value })}
+                        className="select select-bordered w-full"
+                    >
                         <option value="Active">Active</option>
                         <option value="Inactive">Inactive</option>
                         <option value="Archived">Archived</option>
-                      </select>
-                    </div>
-                  ) : (
-                    <>
-                      <p className="font-semibold text-lg">{election.name}</p>
-                      <p className="text-sm text-gray-500">Status: {election.status}</p>
-                    </>
-                  )}
+                    </select>
                 </div>
-                <div className="mt-3 md:mt-0 flex flex-wrap gap-2">
-                  {editingElectionId === election.id ? (
-                    <>
-                      <button
-                        onClick={() => handleUpdateElection(election.id)}
-                        className="bg-green-600 text-white px-3 py-1 rounded"
-                      >
-                        Save
-                      </button>
-                      <button
-                        onClick={() => setEditingElectionId(null)}
-                        className="bg-gray-200 text-gray-700 px-3 py-1 rounded"
-                      >
-                        Cancel
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <button
-                        onClick={() => {
-                          setSelectedElectionId(election.id);
-                          setSelectedPositionId("");
-                        }}
-                        className={`px-3 py-1 rounded ${
-                          selectedElectionId === election.id
-                            ? "bg-blue-600 text-white"
-                            : "bg-blue-100 text-blue-700"
-                        }`}
-                      >
-                        Select
-                      </button>
-                      <button
-                        onClick={() => {
-                          setEditingElectionId(election.id);
-                          setEditingElection({
-                            name: election.name,
-                            status: election.status,
-                          });
-                        }}
-                        className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDeleteElection(election.id)}
-                        className="bg-red-500 text-white px-3 py-1 rounded"
-                      >
-                        Delete
-                      </button>
-                    </>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      <div className="bg-white rounded-xl shadow-md p-6">
-        <h2 className="text-lg font-bold mb-4">Manage Positions</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-          <select
-            value={selectedElectionId}
-            onChange={(e) => {
-              setSelectedElectionId(e.target.value);
-              setSelectedPositionId("");
-            }}
-            className="border rounded-lg px-3 py-2"
-          >
-            <option value="">Select Election</option>
-            {elections.map((election) => (
-              <option key={election.id} value={election.id}>
-                {election.name}
-              </option>
-            ))}
-          </select>
-          <input
-            type="text"
-            placeholder="Position Name"
-            value={newPositionName}
-            onChange={(e) => setNewPositionName(e.target.value)}
-            className="border rounded-lg px-3 py-2"
-          />
-          <button
-            onClick={handleCreatePosition}
-            className="bg-green-600 text-white px-4 py-2 rounded-lg shadow"
-          >
-            Add Position
-          </button>
-        </div>
-
-        <div className="mt-4 space-y-2">
-          {selectedPositions.length === 0 ? (
-            <p className="text-gray-500">No positions for this election.</p>
-          ) : (
-            selectedPositions.map((position) => (
-              <div
-                key={position.id}
-                className="border rounded-lg p-3 flex flex-col md:flex-row md:items-center md:justify-between"
-              >
-                <div>
-                  {editingPositionId === position.id ? (
-                    <input
-                      type="text"
-                      value={editingPositionName}
-                      onChange={(e) => setEditingPositionName(e.target.value)}
-                      className="border rounded px-2 py-1"
-                    />
-                  ) : (
-                    <p className="font-medium">{position.name}</p>
-                  )}
-                </div>
-                <div className="mt-3 md:mt-0 flex flex-wrap gap-2">
-                  {editingPositionId === position.id ? (
-                    <>
-                      <button
-                        onClick={() => handleUpdatePosition(position.id)}
-                        className="bg-green-600 text-white px-3 py-1 rounded"
-                      >
-                        Save
-                      </button>
-                      <button
-                        onClick={() => setEditingPositionId(null)}
-                        className="bg-gray-200 text-gray-700 px-3 py-1 rounded"
-                      >
-                        Cancel
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <button
-                        onClick={() => {
-                          setSelectedPositionId(position.id);
-                        }}
-                        className={`px-3 py-1 rounded ${
-                          selectedPositionId === position.id
-                            ? "bg-blue-600 text-white"
-                            : "bg-blue-100 text-blue-700"
-                        }`}
-                      >
-                        Select
-                      </button>
-                      <button
-                        onClick={() => {
-                          setEditingPositionId(position.id);
-                          setEditingPositionName(position.name);
-                        }}
-                        className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDeletePosition(position.id)}
-                        className="bg-red-500 text-white px-3 py-1 rounded"
-                      >
-                        Delete
-                      </button>
-                    </>
-                  )}
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-      </div>
-
-      <div className="bg-white rounded-xl shadow-md p-6">
-        <h2 className="text-lg font-bold mb-4">Manage Candidates</h2>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
-          <select
-            value={selectedPositionId}
-            onChange={(e) => setSelectedPositionId(e.target.value)}
-            className="border rounded-lg px-3 py-2"
-          >
-            <option value="">Select Position</option>
-            {selectedPositions.map((position) => (
-              <option key={position.id} value={position.id}>
-                {position.name}
-              </option>
-            ))}
-          </select>
-          <input
-            type="text"
-            placeholder="Candidate Name"
-            value={newCandidate.name}
-            onChange={(e) =>
-              setNewCandidate({ ...newCandidate, name: e.target.value })
-            }
-            className="border rounded-lg px-3 py-2"
-          />
-          <input
-            type="text"
-            placeholder="Party Name"
-            value={newCandidate.party}
-            onChange={(e) =>
-              setNewCandidate({ ...newCandidate, party: e.target.value })
-            }
-            className="border rounded-lg px-3 py-2"
-          />
-          <input
-            type="text"
-            placeholder="Photo URL"
-            value={newCandidate.photo}
-            onChange={(e) =>
-              setNewCandidate({ ...newCandidate, photo: e.target.value })
-            }
-            className="border rounded-lg px-3 py-2"
-          />
-        </div>
-        <button
-          onClick={handleCreateCandidate}
-          className="mt-4 bg-purple-600 text-white px-4 py-2 rounded-lg shadow"
-        >
-          Add Candidate
-        </button>
-
-        <div className="mt-6 space-y-2">
-          {selectedPositionId && selectedCandidates.length === 0 ? (
-            <p className="text-gray-500">No candidates for this position.</p>
-          ) : null}
-          {!selectedPositionId && selectedCandidates.length === 0 ? (
-            <p className="text-gray-500">No candidates for this election.</p>
-          ) : null}
-          {selectedCandidates.map((candidate) => (
-            <div
-              key={candidate.id}
-              className="border rounded-lg p-3 flex flex-col md:flex-row md:items-center md:justify-between"
-            >
-              <div className="flex items-center gap-3">
-                <img
-                  src={candidate.photo || "/profile.jpg"}
-                  alt={candidate.name}
-                  className="w-12 h-12 rounded-full object-cover border"
-                />
-                <div>
-                  {editingCandidateId === candidate.id ? (
-                    <div className="space-y-2">
-                      <input
-                        type="text"
-                        value={editingCandidate.name}
-                        onChange={(e) =>
-                          setEditingCandidate({
-                            ...editingCandidate,
-                            name: e.target.value,
-                          })
-                        }
-                        className="border rounded px-2 py-1 w-full"
-                      />
-                      <input
-                        type="text"
-                        value={editingCandidate.party}
-                        onChange={(e) =>
-                          setEditingCandidate({
-                            ...editingCandidate,
-                            party: e.target.value,
-                          })
-                        }
-                        className="border rounded px-2 py-1 w-full"
-                      />
-                      <input
-                        type="text"
-                        value={editingCandidate.photo}
-                        onChange={(e) =>
-                          setEditingCandidate({
-                            ...editingCandidate,
-                            photo: e.target.value,
-                          })
-                        }
-                        className="border rounded px-2 py-1 w-full"
-                      />
-                    </div>
-                  ) : (
-                    <>
-                      <p className="font-semibold">{candidate.name}</p>
-                      <p className="text-sm text-gray-500">{candidate.party}</p>
-                      <p className="text-xs text-gray-400">{candidate.position}</p>
-                    </>
-                  )}
-                </div>
-              </div>
-              <div className="mt-3 md:mt-0 flex flex-wrap gap-2">
-                {editingCandidateId === candidate.id ? (
-                  <>
+                 <div className="form-control">
                     <button
-                      onClick={() => handleUpdateCandidate(candidate.id)}
-                      className="bg-green-600 text-white px-3 py-1 rounded"
+                        onClick={handleCreateElection}
+                        className="btn btn-primary"
                     >
-                      Save
+                        Create Election
                     </button>
-                    <button
-                      onClick={() => setEditingCandidateId(null)}
-                      className="bg-gray-200 text-gray-700 px-3 py-1 rounded"
-                    >
-                      Cancel
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <button
-                      onClick={() => {
-                        setEditingCandidateId(candidate.id);
-                        setEditingCandidate({
-                          name: candidate.name,
-                          party: candidate.party,
-                          photo: candidate.photo || "",
-                        });
-                      }}
-                      className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDeleteCandidate(candidate.id)}
-                      className="bg-red-500 text-white px-3 py-1 rounded"
-                    >
-                      Delete
-                    </button>
-                  </>
-                )}
-              </div>
+                </div>
             </div>
-          ))}
+        </div>
+      </div>
+
+      {/* 2. Manage Elections (List) */}
+      <div className="card bg-base-100 shadow-xl">
+         <div className="card-body">
+            <div className="flex justify-between items-center mb-4">
+                 <h2 className="card-title">Active Elections</h2>
+                 {isLoading && <span className="loading loading-spinner loading-md"></span>}
+            </div>
+
+            {elections.length === 0 ? (
+                <div className="alert">No elections found.</div>
+            ) : (
+                <div className="overflow-x-auto">
+                    <table className="table table-zebra w-full">
+                         <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {elections.map((election) => (
+                                <tr key={election.id} className={selectedElectionId === election.id ? "bg-base-200" : ""}>
+                                    <td>
+                                        {editingElectionId === election.id ? (
+                                            <input
+                                                type="text"
+                                                value={editingElection.name}
+                                                onChange={(e) => setEditingElection({...editingElection, name: e.target.value})}
+                                                className="input input-bordered input-sm w-full max-w-xs"
+                                            />
+                                        ) : (
+                                            <span className="font-semibold">{election.name}</span>
+                                        )}
+                                    </td>
+                                    <td>
+                                        {editingElectionId === election.id ? (
+                                             <select
+                                                value={editingElection.status}
+                                                onChange={(e) => setEditingElection({...editingElection, status: e.target.value})}
+                                                className="select select-bordered select-sm"
+                                            >
+                                                <option value="Active">Active</option>
+                                                <option value="Inactive">Inactive</option>
+                                                <option value="Archived">Archived</option>
+                                            </select>
+                                        ) : (
+                                            <div className={`badge ${election.status === 'Active' ? 'badge-success text-white' : 'badge-ghost'}`}>
+                                                {election.status}
+                                            </div>
+                                        )}
+                                    </td>
+                                    <td>
+                                        <div className="join">
+                                            {editingElectionId === election.id ? (
+                                                <>
+                                                 <button onClick={() => handleUpdateElection(election.id)} className="btn btn-sm btn-success join-item text-white">Save</button>
+                                                 <button onClick={() => setEditingElectionId(null)} className="btn btn-sm btn-ghost join-item">Cancel</button>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <button 
+                                                        onClick={() => {
+                                                            setSelectedElectionId(election.id);
+                                                            setSelectedPositionId("");
+                                                        }}
+                                                        className={`btn btn-sm join-item ${selectedElectionId === election.id ? 'btn-primary' : 'btn-outline'}`}
+                                                    >
+                                                        Select
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => {
+                                                            setEditingElectionId(election.id);
+                                                            setEditingElection({ name: election.name, status: election.status });
+                                                        }}
+                                                        className="btn btn-sm btn-warning join-item text-white"
+                                                    >
+                                                        Edit
+                                                    </button>
+                                                    <button onClick={() => handleDeleteElection(election.id)} className="btn btn-sm btn-error join-item text-white">Delete</button>
+                                                </>
+                                            )}
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            )}
+         </div>
+      </div>
+
+     {/* 3. Manage Positions section */}
+     {selectedElectionId && (
+         <div className="card bg-base-100 shadow-xl">
+             <div className="card-body">
+                 <h2 className="card-title">Manage Positions: {selectedElection?.name}</h2>
+                 
+                 <div className="flex flex-col md:flex-row gap-4 items-end mb-6 bg-base-200 p-4 rounded-lg">
+                      <div className="form-control w-full">
+                        <label className="label"><span className="label-text">New Position Name</span></label>
+                         <input
+                            type="text"
+                            placeholder="E.g. President, Secretary"
+                            value={newPositionName}
+                            onChange={(e) => setNewPositionName(e.target.value)}
+                            className="input input-bordered w-full"
+                        />
+                      </div>
+                      <button onClick={handleCreatePosition} className="btn btn-secondary">Add Position</button>
+                 </div>
+
+                 <div className="space-y-2">
+                     {selectedPositions.length === 0 ? (
+                         <div className="alert text-sm">No positions defined for this election yet.</div>
+                     ) : (
+                         selectedPositions.map((position) => (
+                             <div key={position.id} className="flex flex-col md:flex-row items-center justify-between p-3 border rounded-lg hover:bg-base-200 transition">
+                                 <div className="flex-1">
+                                      {editingPositionId === position.id ? (
+                                        <input
+                                          type="text"
+                                          value={editingPositionName}
+                                          onChange={(e) => setEditingPositionName(e.target.value)}
+                                          className="input input-bordered input-sm w-full max-w-xs"
+                                        />
+                                      ) : (
+                                        <div className="font-semibold text-lg">{position.name}</div>
+                                      )}
+                                 </div>
+                                 <div className="join mt-2 md:mt-0">
+                                      {editingPositionId === position.id ? (
+                                          <>
+                                            <button onClick={() => handleUpdatePosition(position.id)} className="btn btn-sm btn-success join-item text-white">Save</button>
+                                            <button onClick={() => setEditingPositionId(null)} className="btn btn-sm btn-ghost join-item">Cancel</button>
+                                          </>
+                                      ) : (
+                                          <>
+                                            <button 
+                                                onClick={() => setSelectedPositionId(position.id)} 
+                                                className={`btn btn-sm join-item ${selectedPositionId === position.id ? 'btn-active btn-secondary' : 'btn-outline btn-secondary'}`}
+                                            >
+                                                Select Candidates
+                                            </button>
+                                            <button 
+                                                onClick={() => {
+                                                    setEditingPositionId(position.id);
+                                                    setEditingPositionName(position.name);
+                                                }}
+                                                className="btn btn-sm btn-warning join-item text-white"
+                                            >
+                                                Edit
+                                            </button>
+                                            <button onClick={() => handleDeletePosition(position.id)} className="btn btn-sm btn-error join-item text-white">Delete</button>
+                                          </>
+                                      )}
+                                 </div>
+                             </div>
+                         ))
+                     )}
+                 </div>
+             </div>
+         </div>
+     )}
+
+     {/* 4. Manage Candidates */}
+      <div className="card bg-base-100 shadow-xl">
+        <div className="card-body">
+            <h2 className="card-title mb-4">Manage Candidates</h2>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end bg-base-200 p-4 rounded-lg mb-6">
+                <div className="form-control">
+                    <label className="label"><span className="label-text">Select Position</span></label>
+                    <select
+                        value={selectedPositionId}
+                        onChange={(e) => setSelectedPositionId(e.target.value)}
+                        className="select select-bordered w-full"
+                    >
+                        <option value="">All Positions</option>
+                        {selectedPositions.map((position) => (
+                        <option key={position.id} value={position.id}>
+                            {position.name}
+                        </option>
+                        ))}
+                    </select>
+                </div>
+                 <div className="form-control">
+                    <label className="label"><span className="label-text">Candidate Name</span></label>
+                    <input
+                        type="text"
+                         placeholder="Name"
+                        value={newCandidate.name}
+                        onChange={(e) =>
+                        setNewCandidate({ ...newCandidate, name: e.target.value })
+                        }
+                        className="input input-bordered w-full"
+                    />
+                 </div>
+                 <div className="form-control">
+                    <label className="label"><span className="label-text">Party</span></label>
+                     <input
+                        type="text"
+                        placeholder="Party"
+                        value={newCandidate.party}
+                        onChange={(e) =>
+                        setNewCandidate({ ...newCandidate, party: e.target.value })
+                        }
+                        className="input input-bordered w-full"
+                    />
+                 </div>
+                 <div className="form-control">
+                    <label className="label"><span className="label-text">Photo URL</span></label>
+                    <input
+                        type="text"
+                        placeholder="Image URL"
+                        value={newCandidate.photo}
+                        onChange={(e) =>
+                        setNewCandidate({ ...newCandidate, photo: e.target.value })
+                        }
+                        className="input input-bordered w-full"
+                    />
+                 </div>
+                 <button
+                    onClick={handleCreateCandidate}
+                    className="btn btn-primary"
+                    disabled={!selectedPositionId}
+                >
+                    Add Candidate
+                </button>
+            </div>
+
+             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                 {selectedCandidates.length === 0 ? (
+                      <div className="col-span-full alert">No candidates found. Select a position above to add candidates.</div>
+                 ) : (
+                     selectedCandidates.map((candidate) => (
+                         <div key={candidate.id} className="card bg-base-100 border shadow-sm hover:shadow-md transition">
+                             <div className="card-body flex-row items-center p-4 gap-4">
+                                
+                                  {editingCandidateId === candidate.id ? (
+                                         <div className="flex flex-col gap-2 w-full">
+                                            <input
+                                                type="text"
+                                                value={editingCandidate.name}
+                                                onChange={(e) => setEditingCandidate({...editingCandidate, name: e.target.value})}
+                                                className="input input-bordered input-sm"
+                                            />
+                                             <input
+                                                type="text"
+                                                value={editingCandidate.party}
+                                                onChange={(e) => setEditingCandidate({...editingCandidate, party: e.target.value})}
+                                                className="input input-bordered input-sm"
+                                            />
+                                             <input
+                                                type="text"
+                                                value={editingCandidate.photo}
+                                                onChange={(e) => setEditingCandidate({...editingCandidate, photo: e.target.value})}
+                                                className="input input-bordered input-sm"
+                                            />
+                                             <div className="flex gap-2 mt-2">
+                                                 <button onClick={() => handleUpdateCandidate(candidate.id)} className="btn btn-xs btn-success text-white">Save</button>
+                                                 <button onClick={() => setEditingCandidateId(null)} className="btn btn-xs btn-ghost">Cancel</button>
+                                             </div>
+                                         </div>
+                                  ) : (
+                                       <>
+                                        <div className="avatar">
+                                            <div className="w-16 rounded-full">
+                                                <img src={candidate.photo || "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"} alt={candidate.name} />
+                                            </div>
+                                        </div>
+                                         <div className="flex-1">
+                                             <h3 className="font-bold">{candidate.name}</h3>
+                                             <div className="text-sm opacity-75">{candidate.party}</div>
+                                             <div className="text-xs badge badge-outline mt-1">{candidate.position}</div>
+                                         </div>
+                                         <div className="flex flex-col gap-1">
+                                             <button 
+                                                onClick={() => {
+                                                    setEditingCandidateId(candidate.id);
+                                                    setEditingCandidate({
+                                                        name: candidate.name,
+                                                        party: candidate.party,
+                                                        photo: candidate.photo || "",
+                                                    });
+                                                }}
+                                                className="btn btn-xs btn-warning text-white"
+                                            >
+                                                Edit
+                                            </button>
+                                             <button onClick={() => handleDeleteCandidate(candidate.id)} className="btn btn-xs btn-error text-white">Delete</button>
+                                         </div>
+                                       </>
+                                  )}
+                             </div>
+                         </div>
+                     ))
+                 )}
+             </div>
         </div>
       </div>
     </div>

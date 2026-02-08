@@ -1,9 +1,13 @@
+"use client";
+
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useState } from "react";
 
 const AdminNavbar = () => {
   const router = useRouter();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleLogout = async () => {
     const response = await fetch("/api/auth/logout", { method: "POST" });
@@ -15,37 +19,76 @@ const AdminNavbar = () => {
     }
   };
 
-  return (
-    <header className="bg-blue-600 text-white px-6 py-4 flex justify-between items-center">
-      <h1 className="text-xl font-bold">Admin Dashboard</h1>
-      <nav className="flex space-x-4">
-        <Link
-          href="/admin/profile"
-          className="bg-white text-blue-600 px-4 py-2 rounded-lg shadow"
-        >
-          Profile
-        </Link>
-        <Link
-          href="/admin/profile/manage/election"
-          className="bg-white text-blue-600 px-4 py-2 rounded-lg shadow"
-        >
-          Manage Elections
-        </Link>
+  const navLinks = [
+    { name: "Dashboard", href: "/admin/profile" },
+    { name: "Manage Elections", href: "/admin/profile/manage/election" },
+    { name: "Manage Voters", href: "/admin/profile/manage/voter" },
+  ];
 
-        <Link
-          href="/admin/profile/manage/voter"
-          className="bg-white text-blue-600 px-4 py-2 rounded-lg shadow"
-        >
-          Manage Voters
+  return (
+    <div className="navbar bg-base-100 shadow-xl rounded-box m-4 w-auto">
+      <div className="navbar-start">
+        <div className="dropdown">
+          <div
+            tabIndex={0}
+            role="button"
+            className="btn btn-ghost lg:hidden"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M4 6h16M4 12h8m-8 6h16"
+              />
+            </svg>
+          </div>
+          {isMenuOpen && (
+            <ul
+              tabIndex={0}
+              className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
+            >
+              {navLinks.map((link) => (
+                <li key={link.href}>
+                  <Link href={link.href} onClick={() => setIsMenuOpen(false)}>
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+        <Link href="/admin/profile" className="btn btn-ghost text-xl text-primary font-bold uppercase">
+          Voting Admin
         </Link>
+      </div>
+      <div className="navbar-center hidden lg:flex">
+        <ul className="menu menu-horizontal px-1 gap-2">
+          {navLinks.map((link) => (
+            <li key={link.href}>
+              <Link href={link.href} className="font-medium hover:text-primary">
+                {link.name}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div className="navbar-end">
         <button
-          className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg shadow"
+          className="btn btn-error btn-sm text-white"
           onClick={handleLogout}
         >
           Logout
         </button>
-      </nav>
-    </header>
+      </div>
+    </div>
   );
 };
 
