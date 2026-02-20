@@ -1,6 +1,6 @@
 # Online Voting System
 
-A secure and comprehensive online voting application built with Next.js, Supabase, and Tailwind CSS. This system facilitates the management of elections, voters, candidates, and secure ballot casting.
+A secure and comprehensive online voting application built with Next.js, Neon (PostgreSQL), and Tailwind CSS. This system facilitates the management of elections, voters, candidates, and secure ballot casting.
 
 ## Features
 
@@ -20,7 +20,7 @@ A secure and comprehensive online voting application built with Next.js, Supabas
 ## Tech Stack
 
 - **Framework:** [Next.js 15](https://nextjs.org/) (App Router)
-- **Database:** [Supabase](https://supabase.com/) (PostgreSQL)
+- **Database:** [Neon](https://neon.tech/) (PostgreSQL)
 - **Styling:** [Tailwind CSS](https://tailwindcss.com/) & [DaisyUI](https://daisyui.com/)
 - **State Management:** [Zustand](https://github.com/pmndrs/zustand)
 - **Authentication:** Custom Auth (JWT & Bcrypt)
@@ -40,7 +40,7 @@ The database is structured with the following key tables:
 
 ### Prerequisites
 - Node.js installed
-- A Supabase project set up
+- A Neon database set up
 
 ### Installation
 
@@ -56,15 +56,14 @@ The database is structured with the following key tables:
    ```
 
 3. **Environment Setup:**
-   Create a `.env.local` file in the root directory and add your Supabase credentials and JWT secret:
+   Create a `.env.local` file in the root directory and add your Neon connection string and JWT secret:
    ```env
-   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+   NEON_DATABASE_URL=postgresql://<user>:<password>@<host>/<database>?sslmode=require
    JWT_SECRET=your_jwt_secret_key
    ```
 
 4. **Database Setup:**
-   Run the SQL script located in `database/schema.sql` in your Supabase SQL Editor to create the necessary tables and extensions.
+   Run the SQL script located in `database/schema.sql` against your Neon database to create the necessary tables and extensions.
 
 5. **Run the Development Server:**
    ```bash
@@ -85,6 +84,6 @@ src/
 ├── components/         # Reusable UI components
 ├── lib/                # Utility libraries
 ├── store/              # Zustand state stores
-├── utils/              # Helper functions & Supabase client
+├── utils/              # Helper functions & database client
 └── ...
 ```

@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 import { cookies } from "next/headers";
 
 import { authenticateToken } from "@/lib/utils";
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/utils/neon/server";
 
 export async function POST() {
   try {

@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/utils/neon/server";
 import { generateToken } from "@/lib/utils";
 
 export async function POST(req) {

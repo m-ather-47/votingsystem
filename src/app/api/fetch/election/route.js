@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/utils/neon/server";
 import { authenticateToken } from "@/lib/utils";
 
 export async function GET() {
@@ -16,28 +16,81 @@ export async function GET() {
     );
   }
 
-  const { data, error } = await supabase
+  const { data: electionRows, error: electionError } = await supabase
     .from("elections")
-    .select(
-      "id, name, status, created_at, positions(id, name, candidates(id, name, party, position, photo, position_id))"
-    )
+    .select("id, name, status, created_at")
     .eq("status", "Active")
     .order("created_at", { ascending: false })
     .order("name", { ascending: true });
 
-  if (error) {
+  if (electionError) {
     return NextResponse.json(
       { success: false, message: "Failed to fetch election." },
       { status: 400 }
     );
   }
 
-  if (!data || data.length === 0) {
+  if (!electionRows || electionRows.length === 0) {
     return NextResponse.json(
       { success: false, message: "No active elections found." },
       { status: 404 }
     );
   }
+
+  const electionIds = electionRows.map((row) => row.id);
+  const { data: positionRows, error: positionError } = await supabase
+    .from("positions")
+    .select("id, name, election_id")
+    .in("election_id", electionIds);
+
+  if (positionError) {
+    return NextResponse.json(
+      { success: false, message: "Failed to fetch election." },
+      { status: 400 }
+    );
+  }
+
+  const positionIds = (positionRows || []).map((row) => row.id);
+  const { data: candidateRows, error: candidateError } = positionIds.length
+    ? await supabase
+        .from("candidates")
+        .select("id, name, party, position, photo, position_id")
+        .in("position_id", positionIds)
+    : { data: [], error: null };
+
+  if (candidateError) {
+    return NextResponse.json(
+      { success: false, message: "Failed to fetch election." },
+      { status: 400 }
+    );
+  }
+
+  const candidatesByPosition = new Map();
+  (candidateRows || []).forEach((candidate) => {
+    const key = candidate.position_id;
+    if (!candidatesByPosition.has(key)) {
+      candidatesByPosition.set(key, []);
+    }
+    candidatesByPosition.get(key).push(candidate);
+  });
+
+  const positionsByElection = new Map();
+  (positionRows || []).forEach((position) => {
+    const electionKey = position.election_id;
+    if (!positionsByElection.has(electionKey)) {
+      positionsByElection.set(electionKey, []);
+    }
+    positionsByElection.get(electionKey).push({
+      id: position.id,
+      name: position.name,
+      candidates: candidatesByPosition.get(position.id) || [],
+    });
+  });
+
+  const data = electionRows.map((election) => ({
+    ...election,
+    positions: positionsByElection.get(election.id) || [],
+  }));
 
   const { data: voterElections, error: voterElectionsError } = await supabase
     .from("voter_elections")

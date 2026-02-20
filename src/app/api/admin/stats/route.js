@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/utils/neon/server";
 import { authenticateToken } from "@/lib/utils";
 
 export async function GET() {
@@ -24,6 +24,7 @@ export async function GET() {
     votesRes,
     candidatesMapRes,
     electionsDetailRes,
+    positionRowsRes,
   ] = await Promise.all([
     supabase.from("voters").select("id", { count: "exact", head: true }),
     supabase.from("candidates").select("id", { count: "exact", head: true }),
@@ -33,8 +34,9 @@ export async function GET() {
     supabase.from("candidates").select("id, election_id"),
     supabase
       .from("elections")
-      .select("id, name, status, positions(id)")
+      .select("id, name, status")
       .order("created_at", { ascending: false }),
+    supabase.from("positions").select("id, election_id"),
   ]);
 
   if (
@@ -44,7 +46,8 @@ export async function GET() {
     electionsRes.error ||
     votesRes.error ||
     candidatesMapRes.error ||
-    electionsDetailRes.error
+    electionsDetailRes.error ||
+    positionRowsRes.error
   ) {
     return NextResponse.json(
       { success: false, message: "Failed to fetch stats." },
@@ -59,8 +62,18 @@ export async function GET() {
   const votes = votesRes.data || [];
   const candidatesMap = candidatesMapRes.data || [];
   const electionsDetail = electionsDetailRes.data || [];
+  const positionRows = positionRowsRes.data || [];
   const distinctVoters = new Set(votes.map((vote) => vote.voter_cnic)).size;
   const turnout = voterCount > 0 ? (distinctVoters / voterCount) * 100 : 0;
+
+  const positionCountByElection = new Map();
+  positionRows.forEach((position) => {
+    if (!position.election_id) return;
+    positionCountByElection.set(
+      position.election_id,
+      (positionCountByElection.get(position.election_id) || 0) + 1
+    );
+  });
 
   const candidateToElection = new Map(
     candidatesMap
@@ -74,7 +87,7 @@ export async function GET() {
       electionId: election.id,
       name: election.name,
       status: election.status,
-      positions: election.positions?.length ?? 0,
+      positions: positionCountByElection.get(election.id) || 0,
       candidates: 0,
       votes: 0,
       voters: new Set(),

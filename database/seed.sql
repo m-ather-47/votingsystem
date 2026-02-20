@@ -12,7 +12,7 @@ on conflict (cnic) do nothing;
 
 with election as (
   insert into elections (name, status)
-  values ('University Student Council Election 2025', 'Active')
+  values ('University Student Council Election 2026', 'Active')
   on conflict (name) do update set status = excluded.status
   returning id
 ),

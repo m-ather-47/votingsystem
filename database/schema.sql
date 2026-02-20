@@ -1,4 +1,4 @@
--- Database schema for Online Voting System (Supabase/Postgres)
+-- Database schema for Online Voting System (Neon/Postgres)
 
 -- Required for gen_random_uuid()
 create extension if not exists pgcrypto;
