@@ -3,11 +3,9 @@
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useState } from "react";
 
 const AdminNavbar = () => {
   const router = useRouter();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleLogout = async () => {
     const response = await fetch("/api/auth/logout", { method: "POST" });
@@ -25,6 +23,10 @@ const AdminNavbar = () => {
     { name: "Manage Voters", href: "/admin/profile/manage/voter" },
   ];
 
+  const closeMenu = () => {
+    document.activeElement?.blur();
+  };
+
   return (
     <div className="navbar bg-base-100 shadow-xl rounded-box m-4 w-auto">
       <div className="navbar-start">
@@ -33,7 +35,6 @@ const AdminNavbar = () => {
             tabIndex={0}
             role="button"
             className="btn btn-ghost lg:hidden"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -50,20 +51,18 @@ const AdminNavbar = () => {
               />
             </svg>
           </div>
-          {isMenuOpen && (
-            <ul
-              tabIndex={0}
-              className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
-            >
-              {navLinks.map((link) => (
-                <li key={link.href}>
-                  <Link href={link.href} onClick={() => setIsMenuOpen(false)}>
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
+          <ul
+            tabIndex={0}
+            className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
+          >
+            {navLinks.map((link) => (
+              <li key={link.href}>
+                <Link href={link.href} onClick={closeMenu}>
+                  {link.name}
+                </Link>
+              </li>
+            ))}
+          </ul>
         </div>
         <Link href="/admin/profile" className="btn btn-ghost text-xl text-primary font-bold uppercase">
           Voting Admin

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useElectionStore } from "@/store/useElectionStore";
 
@@ -12,6 +12,7 @@ const page = () => {
   const router = useRouter();
   const { voter, elections, votes, setVotes, setElections, castVote } =
     useElectionStore();
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchElection = async () => {
@@ -27,6 +28,8 @@ const page = () => {
         setElections(result.data?.elections || []);
       } catch (error) {
         toast.error("Failed to load election.");
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -88,7 +91,12 @@ const page = () => {
       <VoterNavbar />
 
       <div className="max-w-7xl mx-auto p-4 md:p-6 lg:p-8">
-        {elections.length > 0 && voter ? (
+        {isLoading ? (
+           <div className="flex flex-col items-center justify-center min-h-[50vh]">
+            <span className="loading loading-spinner loading-lg text-primary"></span>
+            <p className="mt-4 text-lg">Loading Elections...</p>
+           </div>
+        ) : elections.length > 0 && voter ? (
           <div className="flex flex-col space-y-8">
             <div className="text-center mb-4">
                  <h1 className="text-3xl font-bold">
@@ -167,8 +175,7 @@ const page = () => {
           </div>
         ) : (
            <div className="flex flex-col items-center justify-center min-h-[50vh]">
-            <span className="loading loading-spinner loading-lg text-primary"></span>
-            <p className="mt-4 text-lg">Loading Elections...</p>
+            <p className="text-lg text-base-content/70">No active elections available.</p>
            </div>
         )}
       </div>

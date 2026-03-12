@@ -16,7 +16,7 @@ export async function PATCH(req, { params }) {
     );
   }
 
-  const positionId = params?.positionId;
+  const { positionId } = await params;
   if (!positionId) {
     return NextResponse.json(
       { success: false, message: "Invalid position id." },
@@ -66,7 +66,7 @@ export async function DELETE(req, { params }) {
     );
   }
 
-  const positionId = params?.positionId;
+  const { positionId } = await params;
   if (!positionId) {
     return NextResponse.json(
       { success: false, message: "Invalid position id." },

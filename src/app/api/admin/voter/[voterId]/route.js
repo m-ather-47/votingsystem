@@ -16,7 +16,7 @@ export async function PATCH(req, { params }) {
     );
   }
 
-  const voterId = params?.voterId;
+  const { voterId } = await params;
   if (!voterId) {
     return NextResponse.json(
       { success: false, message: "Invalid voter id." },
@@ -88,7 +88,7 @@ export async function DELETE(req, { params }) {
     );
   }
 
-  const voterId = params?.voterId;
+  const { voterId } = await params;
   if (!voterId) {
     return NextResponse.json(
       { success: false, message: "Invalid voter id." },
