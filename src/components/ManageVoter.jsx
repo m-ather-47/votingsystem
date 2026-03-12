@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
 import { useElectionStore } from "@/store/useElectionStore";
 
 export default function ManageVoter() {
+  const router = useRouter();
   const { voters, setVoters, setVotersData } = useElectionStore();
 
   const [search, setSearch] = useState("");
@@ -26,10 +28,22 @@ export default function ManageVoter() {
   });
 
   useEffect(() => {
-    if (!voters || voters.length === 0) {
-      setVotersData();
-    }
-  }, [voters, setVotersData]);
+    const init = async () => {
+      if (!voters || voters.length === 0) {
+        const res = await fetch("/api/admin/voter", { cache: "no-store" });
+        if (res.status === 401) {
+          toast.error("Session expired. Please log in again.");
+          router.replace("/admin/login");
+          return;
+        }
+        const result = await res.json();
+        if (result.success) {
+          setVoters(result.data || []);
+        }
+      }
+    };
+    init();
+  }, []);
 
   const handleCreate = async () => {
     if (!newVoter.name || !newVoter.cnic || !newVoter.dob) {
@@ -82,8 +96,8 @@ export default function ManageVoter() {
     }
   };
 
-  // Handle Delete
   const handleDelete = async (id) => {
+    if (!window.confirm("Delete this voter? This action cannot be undone.")) return;
     try {
       const response = await fetch(`/api/admin/voter/${id}`, {
         method: "DELETE",
@@ -106,223 +120,243 @@ export default function ManageVoter() {
     return target.includes(search.toLowerCase());
   });
 
-  return (
-    <div className="p-6 bg-gray-100 min-h-screen space-y-6">
-      <h1 className="text-2xl font-bold">Manage Voters</h1>
+  const statusBadge = (status) => {
+    const map = {
+      Voted: "badge-success",
+      "Not Voted": "badge-warning",
+      Active: "badge-info",
+      Inactive: "badge-ghost",
+    };
+    return map[status] || "badge-ghost";
+  };
 
-      <div className="bg-white shadow-md rounded-lg p-6">
-        <h2 className="text-lg font-semibold mb-4">Add Voter</h2>
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-          <input
-            type="text"
-            placeholder="Full Name"
-            value={newVoter.name}
-            onChange={(e) => setNewVoter({ ...newVoter, name: e.target.value })}
-            className="border rounded px-3 py-2"
-          />
-          <input
-            type="text"
-            placeholder="CNIC"
-            value={newVoter.cnic}
-            onChange={(e) => setNewVoter({ ...newVoter, cnic: e.target.value })}
-            className="border rounded px-3 py-2"
-          />
-          <input
-            type="date"
-            value={newVoter.dob}
-            onChange={(e) => setNewVoter({ ...newVoter, dob: e.target.value })}
-            className="border rounded px-3 py-2"
-          />
-          <select
-            value={newVoter.status}
-            onChange={(e) => setNewVoter({ ...newVoter, status: e.target.value })}
-            className="border rounded px-3 py-2"
-          >
-            <option value="Not Voted">Not Voted</option>
-            <option value="Voted">Voted</option>
-            <option value="Active">Active</option>
-            <option value="Inactive">Inactive</option>
-          </select>
-          <input
-            type="text"
-            placeholder="Photo URL"
-            value={newVoter.photo}
-            onChange={(e) => setNewVoter({ ...newVoter, photo: e.target.value })}
-            className="border rounded px-3 py-2"
-          />
-        </div>
-        <button
-          onClick={handleCreate}
-          className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg"
-        >
-          Create Voter
-        </button>
+  return (
+    <div className="space-y-6">
+      {/* Page Header */}
+      <div className="page-header">
+        <h1>Voter Management</h1>
+        <p>Register new voters and manage existing voter records.</p>
       </div>
 
-      <div className="bg-white shadow-md rounded-lg p-6">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
-          <h2 className="text-lg font-semibold">All Voters</h2>
-          <input
-            type="text"
-            placeholder="Search by name or CNIC"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="border rounded px-3 py-2"
-          />
+      {/* Add Voter Form */}
+      <div className="section-card">
+        <div className="section-card-header">
+          <h2>Register New Voter</h2>
         </div>
+        <div className="section-card-body">
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            <div className="form-control">
+              <label className="label"><span className="label-text text-xs font-medium">Full Name</span></label>
+              <input
+                type="text"
+                placeholder="e.g. Muhammad Ali"
+                value={newVoter.name}
+                onChange={(e) => setNewVoter({ ...newVoter, name: e.target.value })}
+                className="input input-bordered input-sm w-full"
+              />
+            </div>
+            <div className="form-control">
+              <label className="label"><span className="label-text text-xs font-medium">CNIC</span></label>
+              <input
+                type="text"
+                placeholder="XXXXX-XXXXXXX-X"
+                value={newVoter.cnic}
+                onChange={(e) => setNewVoter({ ...newVoter, cnic: e.target.value })}
+                className="input input-bordered input-sm w-full font-mono"
+              />
+            </div>
+            <div className="form-control">
+              <label className="label"><span className="label-text text-xs font-medium">Date of Birth</span></label>
+              <input
+                type="date"
+                value={newVoter.dob}
+                onChange={(e) => setNewVoter({ ...newVoter, dob: e.target.value })}
+                className="input input-bordered input-sm w-full"
+              />
+            </div>
+            <div className="form-control">
+              <label className="label"><span className="label-text text-xs font-medium">Status</span></label>
+              <select
+                value={newVoter.status}
+                onChange={(e) => setNewVoter({ ...newVoter, status: e.target.value })}
+                className="select select-bordered select-sm w-full"
+              >
+                <option value="Not Voted">Not Voted</option>
+                <option value="Voted">Voted</option>
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+              </select>
+            </div>
+            <div className="form-control">
+              <label className="label"><span className="label-text text-xs font-medium">Photo URL</span></label>
+              <input
+                type="text"
+                placeholder="/profile.jpg"
+                value={newVoter.photo}
+                onChange={(e) => setNewVoter({ ...newVoter, photo: e.target.value })}
+                className="input input-bordered input-sm w-full"
+              />
+            </div>
+          </div>
+          <div className="mt-4 flex justify-end">
+            <button onClick={handleCreate} className="btn btn-primary btn-sm gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
+              Register Voter
+            </button>
+          </div>
+        </div>
+      </div>
 
+      {/* Voters Table */}
+      <div className="section-card">
+        <div className="section-card-header">
+          <h2>All Voters ({filteredVoters.length})</h2>
+          <div className="relative">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+            <input
+              type="text"
+              placeholder="Search by name or CNIC..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="input input-bordered input-sm pl-9 w-64"
+            />
+          </div>
+        </div>
         <div className="overflow-x-auto">
-          <table className="w-full border-collapse">
-            <thead className="bg-blue-600 text-white">
-              <tr>
-                <th className="px-4 py-2 text-left">Photo</th>
-                <th className="px-4 py-2 text-left">Name</th>
-                <th className="px-4 py-2 text-left">CNIC</th>
-                <th className="px-4 py-2 text-left">DOB</th>
-                <th className="px-4 py-2 text-left">Status</th>
-                <th className="px-4 py-2 text-left">Actions</th>
+          <table className="table table-sm">
+            <thead>
+              <tr className="bg-base-200/50">
+                <th>Photo</th>
+                <th>Name</th>
+                <th>CNIC</th>
+                <th>DOB</th>
+                <th>Status</th>
+                <th className="text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {filteredVoters.map((voter) => (
-                <tr
-                  key={voter.id || voter.cnic}
-                  className="border-b hover:bg-gray-50"
-                >
-                  <td className="px-4 py-2">
-                    {editingVoter === (voter.id || voter.cnic) ? (
-                      <input
-                        type="text"
-                        value={editedData.photo}
-                        onChange={(e) =>
-                          setEditedData({ ...editedData, photo: e.target.value })
-                        }
-                        className="border rounded px-2 py-1 w-full"
-                        placeholder="Photo URL"
-                      />
-                    ) : (
-                      <img
-                        src={voter.photo || "/profile.jpg"}
-                        alt={voter.name}
-                        className="w-10 h-10 rounded-full object-cover border"
-                      />
-                    )}
-                  </td>
-                  <td className="px-4 py-2">
-                    {editingVoter === (voter.id || voter.cnic) ? (
-                      <input
-                        type="text"
-                        value={editedData.name}
-                        onChange={(e) =>
-                          setEditedData({ ...editedData, name: e.target.value })
-                        }
-                        className="border rounded px-2 py-1 w-full"
-                      />
-                    ) : (
-                      String(voter.name).toUpperCase()
-                    )}
-                  </td>
-                  <td className="px-4 py-2">
-                    {editingVoter === (voter.id || voter.cnic) ? (
-                      <input
-                        type="text"
-                        value={editedData.cnic}
-                        onChange={(e) =>
-                          setEditedData({ ...editedData, cnic: e.target.value })
-                        }
-                        className="border rounded px-2 py-1 w-full"
-                      />
-                    ) : (
-                      voter.cnic
-                    )}
-                  </td>
-                  <td className="px-4 py-2">
-                    {editingVoter === (voter.id || voter.cnic) ? (
-                      <input
-                        type="date"
-                        value={editedData.dob || ""}
-                        onChange={(e) =>
-                          setEditedData({ ...editedData, dob: e.target.value })
-                        }
-                        className="border rounded px-2 py-1"
-                      />
-                    ) : (
-                      voter.dob
-                    )}
-                  </td>
-                  <td className="px-4 py-2">
-                    {editingVoter === (voter.id || voter.cnic) ? (
-                      <select
-                        value={editedData.status}
-                        onChange={(e) =>
-                          setEditedData({
-                            ...editedData,
-                            status: e.target.value,
-                          })
-                        }
-                        className="border rounded px-2 py-1"
-                      >
-                        <option value="Not Voted">Not Voted</option>
-                        <option value="Voted">Voted</option>
-                        <option value="Active">Active</option>
-                        <option value="Inactive">Inactive</option>
-                      </select>
-                    ) : (
-                      <span
-                        className={`px-2 py-1 rounded text-sm ${
-                          voter.status === "Voted"
-                            ? "bg-green-200 text-green-700"
-                            : "bg-yellow-200 text-yellow-700"
-                        }`}
-                      >
-                        {voter.status}
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-4 py-2 space-x-2">
-                    {editingVoter === (voter.id || voter.cnic) ? (
-                      <>
-                        <button
-                          onClick={() => handleSave(voter.id || voter.cnic)}
-                          className="bg-green-600 text-white px-3 py-1 rounded"
-                        >
-                          Save
-                        </button>
-                        <button
-                          onClick={() => setEditingVoter(null)}
-                          className="bg-gray-200 text-gray-700 px-3 py-1 rounded"
-                        >
-                          Cancel
-                        </button>
-                      </>
-                    ) : (
-                      <>
-                        <button
-                          onClick={() => {
-                            setEditingVoter(voter.id || voter.cnic);
-                            setEditedData({
-                              name: voter.name || "",
-                              cnic: voter.cnic || "",
-                              dob: voter.dob || "",
-                              status: voter.status || "Not Voted",
-                              photo: voter.photo || "",
-                            });
-                          }}
-                          className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDelete(voter.id || voter.cnic)}
-                          className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                        >
-                          Delete
-                        </button>
-                      </>
-                    )}
+              {filteredVoters.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="text-center py-8 text-base-content/50">
+                    No voters found.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                filteredVoters.map((voter) => {
+                  const voterId = voter.id || voter.cnic;
+                  const isEditing = editingVoter === voterId;
+
+                  return (
+                    <tr key={voterId} className="hover:bg-base-200/30 transition-colors">
+                      <td>
+                        {isEditing ? (
+                          <input
+                            type="text"
+                            value={editedData.photo}
+                            onChange={(e) => setEditedData({ ...editedData, photo: e.target.value })}
+                            className="input input-bordered input-xs w-28"
+                            placeholder="Photo URL"
+                          />
+                        ) : (
+                          <div className="avatar">
+                            <div className="w-9 h-9 rounded-full ring ring-base-200 ring-offset-1">
+                              <img src={voter.photo || "/profile.jpg"} alt={voter.name} />
+                            </div>
+                          </div>
+                        )}
+                      </td>
+                      <td className="font-medium">
+                        {isEditing ? (
+                          <input
+                            type="text"
+                            value={editedData.name}
+                            onChange={(e) => setEditedData({ ...editedData, name: e.target.value })}
+                            className="input input-bordered input-xs w-full"
+                          />
+                        ) : (
+                          String(voter.name).toUpperCase()
+                        )}
+                      </td>
+                      <td className="font-mono text-xs">
+                        {isEditing ? (
+                          <input
+                            type="text"
+                            value={editedData.cnic}
+                            onChange={(e) => setEditedData({ ...editedData, cnic: e.target.value })}
+                            className="input input-bordered input-xs w-full font-mono"
+                          />
+                        ) : (
+                          voter.cnic
+                        )}
+                      </td>
+                      <td className="text-sm">
+                        {isEditing ? (
+                          <input
+                            type="date"
+                            value={editedData.dob || ""}
+                            onChange={(e) => setEditedData({ ...editedData, dob: e.target.value })}
+                            className="input input-bordered input-xs"
+                          />
+                        ) : (
+                          voter.dob
+                        )}
+                      </td>
+                      <td>
+                        {isEditing ? (
+                          <select
+                            value={editedData.status}
+                            onChange={(e) => setEditedData({ ...editedData, status: e.target.value })}
+                            className="select select-bordered select-xs"
+                          >
+                            <option value="Not Voted">Not Voted</option>
+                            <option value="Voted">Voted</option>
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                          </select>
+                        ) : (
+                          <span className={`badge badge-sm ${statusBadge(voter.status)}`}>
+                            {voter.status}
+                          </span>
+                        )}
+                      </td>
+                      <td className="text-right">
+                        {isEditing ? (
+                          <div className="join">
+                            <button onClick={() => handleSave(voterId)} className="btn btn-xs btn-success join-item">Save</button>
+                            <button onClick={() => setEditingVoter(null)} className="btn btn-xs btn-ghost join-item">Cancel</button>
+                          </div>
+                        ) : (
+                          <div className="join">
+                            <button
+                              onClick={() => {
+                                setEditingVoter(voterId);
+                                setEditedData({
+                                  name: voter.name || "",
+                                  cnic: voter.cnic || "",
+                                  dob: voter.dob || "",
+                                  status: voter.status || "Not Voted",
+                                  photo: voter.photo || "",
+                                });
+                              }}
+                              className="btn btn-xs btn-ghost text-warning join-item"
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => handleDelete(voterId)}
+                              className="btn btn-xs btn-ghost text-error join-item"
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                              Delete
+                            </button>
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </table>
         </div>

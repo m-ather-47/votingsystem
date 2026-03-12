@@ -17,11 +17,11 @@ export const generateToken = (userId, cookieStore) => {
 };
 
 export const authenticateToken = (cookieStore) => {
-  const token = cookieStore.get("token").value;
-
-  if (!token) {
+  const cookie = cookieStore.get("token");
+  if (!cookie?.value) {
     return false;
   }
+  const token = cookie.value;
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);

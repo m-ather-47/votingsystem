@@ -1,2 +1,46 @@
 @import "tailwindcss";
-@plugin "daisyui";
+@plugin "daisyui" {
+  themes: corporate --default, business --prefersDark;
+}
+
+@layer base {
+  body {
+    @apply antialiased;
+  }
+}
+
+@layer components {
+  .page-header {
+    @apply mb-8;
+  }
+  .page-header h1 {
+    @apply text-2xl font-bold tracking-tight text-base-content;
+  }
+  .page-header p {
+    @apply text-sm text-base-content/60 mt-1;
+  }
+  .stat-card {
+    @apply bg-base-100 border border-base-200 rounded-xl p-5 flex items-start gap-4 transition-shadow hover:shadow-md;
+  }
+  .stat-card .stat-icon {
+    @apply w-11 h-11 rounded-lg flex items-center justify-center shrink-0;
+  }
+  .stat-card .stat-label {
+    @apply text-xs font-medium uppercase tracking-wider text-base-content/50;
+  }
+  .stat-card .stat-value {
+    @apply text-2xl font-bold text-base-content mt-0.5;
+  }
+  .section-card {
+    @apply bg-base-100 border border-base-200 rounded-xl shadow-sm;
+  }
+  .section-card-header {
+    @apply px-6 py-4 border-b border-base-200 flex items-center justify-between;
+  }
+  .section-card-header h2 {
+    @apply text-base font-semibold text-base-content;
+  }
+  .section-card-body {
+    @apply p-6;
+  }
+}
