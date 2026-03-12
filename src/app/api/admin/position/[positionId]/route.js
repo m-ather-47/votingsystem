@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 import { createClient } from "@/utils/neon/server";
-import { authenticateToken } from "@/lib/utils";
+import { authenticateToken, isDemoUser } from "@/lib/utils";
 
 export async function PATCH(req, { params }) {
   const cookieStore = await cookies();
@@ -13,6 +13,13 @@ export async function PATCH(req, { params }) {
     return NextResponse.json(
       { success: false, message: "Unauthorized Access." },
       { status: 401 }
+    );
+  }
+
+  if (isDemoUser(userId)) {
+    return NextResponse.json(
+      { success: true, message: "Position updated successfully" },
+      { status: 200 }
     );
   }
 
@@ -63,6 +70,13 @@ export async function DELETE(req, { params }) {
     return NextResponse.json(
       { success: false, message: "Unauthorized Access." },
       { status: 401 }
+    );
+  }
+
+  if (isDemoUser(userId)) {
+    return NextResponse.json(
+      { success: true, message: "Position deleted successfully" },
+      { status: 200 }
     );
   }
 

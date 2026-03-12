@@ -1,5 +1,12 @@
 import jwt from "jsonwebtoken";
 
+export const DEMO_ADMIN = "admin";
+export const DEMO_VOTERS = ["3520212345671", "3520276543219"];
+
+export const isDemoUser = (userId) => {
+  return userId === DEMO_ADMIN || DEMO_VOTERS.includes(userId);
+};
+
 export const generateToken = (userId, cookieStore) => {
   const token = jwt.sign({ userId }, process.env.JWT_SECRET, {
     expiresIn: "1d",

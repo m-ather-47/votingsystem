@@ -132,6 +132,18 @@ const page = () => {
           <p className="text-center text-xs text-base-content/40 mt-8">
             Protected administrative area. Unauthorized access is prohibited.
           </p>
+
+          <div className="mt-6 p-4 bg-info/10 border border-info/20 rounded-lg">
+            <div className="flex items-center gap-2 mb-2">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 text-info"><path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" /></svg>
+              <span className="text-xs font-semibold text-info">Demo Credentials</span>
+            </div>
+            <div className="text-xs text-base-content/60 space-y-1">
+              <p><span className="font-medium">Username:</span> <code className="bg-base-200 px-1.5 py-0.5 rounded">admin</code></p>
+              <p><span className="font-medium">Password:</span> <code className="bg-base-200 px-1.5 py-0.5 rounded">admin</code></p>
+            </div>
+            <p className="text-[10px] text-base-content/40 mt-2">Demo mode — write operations are simulated.</p>
+          </div>
         </div>
       </div>
     </div>

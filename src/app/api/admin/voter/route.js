@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 import { createClient } from "@/utils/neon/server";
-import { authenticateToken } from "@/lib/utils";
+import { authenticateToken, isDemoUser, DEMO_VOTERS } from "@/lib/utils";
 
 export async function GET() {
   const cookieStore = await cookies();
@@ -25,7 +25,23 @@ export async function GET() {
     );
   }
 
-  return NextResponse.json({ success: true, data: data || [] });
+  const voters = data || [];
+
+  if (isDemoUser(userId)) {
+    const masked = voters.map((voter) => {
+      if (DEMO_VOTERS.includes(voter.cnic)) return voter;
+      return {
+        ...voter,
+        name: "****",
+        cnic: "*****-*******-*",
+        dob: "****-**-**",
+        photo: "/profile.jpg",
+      };
+    });
+    return NextResponse.json({ success: true, data: masked, isDemo: true });
+  }
+
+  return NextResponse.json({ success: true, data: voters });
 }
 
 export async function POST(req) {
@@ -37,6 +53,13 @@ export async function POST(req) {
     return NextResponse.json(
       { success: false, message: "Unauthorized Access." },
       { status: 401 }
+    );
+  }
+
+  if (isDemoUser(userId)) {
+    return NextResponse.json(
+      { success: true, message: "Voter created successfully" },
+      { status: 200 }
     );
   }
 

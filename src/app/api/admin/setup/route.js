@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import { cookies } from "next/headers";
 
-import { authenticateToken } from "@/lib/utils";
+import { authenticateToken, isDemoUser } from "@/lib/utils";
 import { createClient } from "@/utils/neon/server";
 
 export async function POST() {
@@ -35,6 +35,13 @@ export async function POST() {
         return NextResponse.json(
           { success: false, message: "Unauthorized Access." },
           { status: 401 }
+        );
+      }
+
+      if (isDemoUser(userId)) {
+        return NextResponse.json(
+          { success: true, message: "Database setup completed successfully." },
+          { status: 200 }
         );
       }
     }

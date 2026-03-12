@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 import { createClient } from "@/utils/neon/server";
-import { authenticateToken } from "@/lib/utils";
+import { authenticateToken, isDemoUser } from "@/lib/utils";
 
 export async function GET() {
   const cookieStore = await cookies();
@@ -101,6 +101,13 @@ export async function POST(req) {
     return NextResponse.json(
       { success: false, message: "Unauthorized Access." },
       { status: 401 }
+    );
+  }
+
+  if (isDemoUser(userId)) {
+    return NextResponse.json(
+      { success: true, message: "Election created successfully" },
+      { status: 200 }
     );
   }
 

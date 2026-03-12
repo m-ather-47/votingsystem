@@ -1,6 +1,9 @@
 "use server";
 
-import { Pool } from "pg";
+import { Pool, types } from "pg";
+
+// Return DATE columns as plain strings (YYYY-MM-DD) instead of JS Date objects
+types.setTypeParser(1082, (val) => val);
 
 const connectionString =
   process.env.NEON_DATABASE_URL || process.env.DATABASE_URL;

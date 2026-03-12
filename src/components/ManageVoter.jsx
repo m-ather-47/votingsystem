@@ -29,17 +29,15 @@ export default function ManageVoter() {
 
   useEffect(() => {
     const init = async () => {
-      if (!voters || voters.length === 0) {
-        const res = await fetch("/api/admin/voter", { cache: "no-store" });
-        if (res.status === 401) {
-          toast.error("Session expired. Please log in again.");
-          router.replace("/admin/login");
-          return;
-        }
-        const result = await res.json();
-        if (result.success) {
-          setVoters(result.data || []);
-        }
+      const res = await fetch("/api/admin/voter", { cache: "no-store" });
+      if (res.status === 401) {
+        toast.error("Session expired. Please log in again.");
+        router.replace("/admin/login");
+        return;
+      }
+      const result = await res.json();
+      if (result.success) {
+        setVoters(result.data || []);
       }
     };
     init();
@@ -119,6 +117,16 @@ export default function ManageVoter() {
     const target = `${voter.name} ${voter.cnic}`.toLowerCase();
     return target.includes(search.toLowerCase());
   });
+
+  const formatDate = (dateStr) => {
+    if (!dateStr) return "";
+    const d = new Date(dateStr);
+    if (Number.isNaN(d.getTime())) return dateStr;
+    const y = d.getUTCFullYear();
+    const m = String(d.getUTCMonth() + 1).padStart(2, "0");
+    const day = String(d.getUTCDate()).padStart(2, "0");
+    return `${y}-${m}-${day}`;
+  };
 
   const statusBadge = (status) => {
     const map = {
@@ -298,7 +306,7 @@ export default function ManageVoter() {
                             className="input input-bordered input-xs"
                           />
                         ) : (
-                          voter.dob
+                          formatDate(voter.dob)
                         )}
                       </td>
                       <td>
@@ -333,7 +341,7 @@ export default function ManageVoter() {
                                 setEditedData({
                                   name: voter.name || "",
                                   cnic: voter.cnic || "",
-                                  dob: voter.dob || "",
+                                  dob: formatDate(voter.dob),
                                   status: voter.status || "Not Voted",
                                   photo: voter.photo || "",
                                 });
