@@ -122,15 +122,15 @@ const page = () => {
               return (
                 <div key={election.electionId} className="section-card">
                   {/* Election Header */}
-                  <div className="section-card-header flex-col sm:flex-row gap-2">
-                    <div className="flex items-center gap-3">
-                      <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                      <h2 className="!text-lg font-bold">{election.name}</h2>
-                      <span className={`badge badge-sm ${isVoted ? "badge-success" : "badge-warning"}`}>
+                  <div className="section-card-header !flex-col sm:!flex-row gap-2">
+                    <div className="flex items-center gap-2 flex-wrap min-w-0">
+                      <div className="w-2 h-2 rounded-full bg-primary animate-pulse shrink-0" />
+                      <h2 className="!text-lg font-bold break-words min-w-0">{election.name}</h2>
+                      <span className={`badge badge-sm shrink-0 ${isVoted ? "badge-success" : "badge-warning"}`}>
                         {election.voterStatus}
                       </span>
                     </div>
-                    <span className="badge badge-sm badge-outline">{election.status}</span>
+                    <span className="badge badge-sm badge-outline shrink-0">{election.status}</span>
                   </div>
 
                   <div className="section-card-body">
