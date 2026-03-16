@@ -55,7 +55,7 @@ Key constraints include cascade deletes for referential integrity and a unique c
 
 1. **Clone the repository:**
    ```bash
-   git clone <repository-url>
+   git clone (https://github.com/m-ather-47/votingsystem.git)
    cd votingsystem
    ```
 
